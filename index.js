@@ -1,76 +1,70 @@
+let port = 8080;
+
+var roomCodes = [];
+
 var app = require('http').createServer();
+var io = require('socket.io')(app);
+app.listen( port );
+console.log( "Server running on port " + port );
 
-app.listen( 8080 );
+io.on('connection', function ( socket ) {
 
-function Device( socket ) {
-    var self = this;
-    
-    this.socket = socket;
-    this.idNo = 0;
-    this.name = "";
-    this.book = {};
+	socket.emit('requestAppRole');
 
-    this.socket.on( "receiveAppID", function( id ) {
-        self.name = id;
-        console.log( "Device " + self.idNo + " identified as " + self.name );
+	socket.on('disconnect', function() {
+		console.log('Something disconnected.');
+	});
 
-        if( id == "Storybook" ) book.main = self;
-        else if( id == "Companion" ) book.companion = self;
+	socket.on('connectStoryBook', function () {
+		let roomCode = getRoomCode()
+		socket.join( roomCode );
+		socket.emit('companionConnectionCode', roomCode );
+		console.log( 'Storybook connected with code ' + roomCode );
+	});
 
-        book.startStory();
-    });
+	socket.on( 'connectCompanion', function ( roomCode ) {
+		socket.join( roomCode );
+	});
+});
+
+
+function getRoomCode () {
+	var code = "";
+
+	do {
+		for( var i = 0; i < 4; i++ ){
+			code += ( Math.floor( Math.random() * 9 ) ).toString();
+		}
+		console.log( code );
+	} while ( contains.call( roomCodes, code ) );
+
+	roomCodes.push( code );
+
+	return code;
 }
 
-Device.prototype.joinGame = function( book ) {
-    this.book = book;
-}
+function contains ( val ) {
+	var findNaN = val !== val;
+	var indexOf;
 
-function Book() {
+	if(!findNaN && typeof Array.prototype.indexOf === 'function') {
+		indexOf = Array.prototype.indexOf;
+	} else {
+		indexOf = function( val ) {
+			var i = -1, index = -1;
 
-    console.log( "Server running" );
+			for(i = 0; i < this.length; i++) {
+				var item = this[i];
 
-    this.io = require('socket.io')(app);
-    this.device1 = null;
-    this.device2 = null;
-    this.main = null;
-    this.companion = null;
-    this.currentPage = 0;
-    this.started = false;
-    this.addHandlers();
-}
+				if((findNaN && item !== item) || item === val) {
+					index = i;
+					break;
+				}
+			}
 
-Book.prototype.addHandlers = function() {
-    var book = this;
+			return index;
+		};
+	}
 
-    this.io.sockets.on("connection", function(socket) {
-        book.addDevice( new Device( socket ) );
-    })
-}
-
-Book.prototype.addDevice = function( device ) {
-    console.log("Adding device ")
-    if (this.device1 === null) {
-        this.device1 = device;
-        this.device1["book"] = this;
-        this.device1["idNo"] = 1
-        this.device1.socket.emit("requestAppID")
-    } else if (this.device2 === null) {
-        this.device2 = device;
-        this.device2["book"] = this;
-        this.device2["idNo"] = 2
-        this.device2.socket.emit("requestAppID");
-    }
-}
-
-Book.prototype.startStory = function() {
-    if(this.main !== null && this.companion !== null) {
-        console.log( "Devices connected, starting story" )
-        this.main.socket.emit( "startStory", "Let’s go, main app!" );
-        this.companion.socket.emit( "startStory", "Hi, hoooo, companion!" );
-    }
-
-    else console.log( "Waiting for device connection..." )
-}
-
-// Start the game server
-var book = new Book();
+	return indexOf.call(this, val) > -1;
+};
