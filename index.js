@@ -9,6 +9,8 @@ console.log( "Server running on port " + port );
 
 io.on('connection', function ( socket ) {
 
+	console.log( "Device connected (id: " + socket.id + ")" );
+
 	socket.emit('requestAppRole');
 
 	socket.on('disconnect', function() {
@@ -22,8 +24,17 @@ io.on('connection', function ( socket ) {
 		console.log( 'Storybook connected with code ' + roomCode );
 	});
 
+	socket.on( 'declareCompanion', function ( roomCode ) {
+		socket.emit('requestCompanionCode');
+	});
+
 	socket.on( 'connectCompanion', function ( roomCode ) {
-		socket.join( roomCode );
+		if( contains.call( roomCodes, roomCode ) ) {
+			socket.join( roomCode );
+			io.sockets.in( roomCode ).emit( 'dyadConnected' );
+		} else {
+			socket.emit( 'companionDenied' );
+		}
 	});
 });
 
