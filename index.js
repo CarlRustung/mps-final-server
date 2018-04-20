@@ -28,6 +28,11 @@ io.on('connection', function ( socket ) {
 		socket.emit('requestCompanionCode');
 	});
 
+	socket.on( 'talkModeEvent', function ( roomCode, responseID, emotion ) {
+		socket.broadcast.to( roomCode ).emit( 'talkModeEvent', responseID, emotion );
+		console.log( "Talk mode event in room #" + roomCode + ": id " + responseID + ", rsp: " + emotion );
+	});
+
 	socket.on( 'connectCompanion', function ( roomCode ) {
 		if( contains.call( roomCodes, roomCode ) ) {
 			socket.join( roomCode );
