@@ -28,10 +28,29 @@ io.on('connection', function ( socket ) {
 		socket.emit('requestCompanionCode');
 	});
 
-	socket.on( 'talkModeEvent', function ( roomCode, responseID, emotion ) {
-		socket.broadcast.to( roomCode ).emit( 'talkModeEvent', responseID, emotion );
-		console.log( "Talk mode event in room #" + roomCode + ": id " + responseID + ", rsp: " + emotion );
+	/*
+	socket.on( 'talkModeEvent', function ( roomCode, lineReference, responseType ) {
+		socket.broadcast.to( roomCode ).emit( 'talkModeEvent', lineReference, responseType );
+		console.log( "Talk mode event in room #" + roomCode + ": id " + lineReference + ", rsp: " + emotion );
 	});
+	*/
+
+	// Reader is finished reading
+	socket.on( 'talkModeEndTurn', function ( roomCode ) {
+		socket.broadcast.to( roomCode ).emit( 'talkModeTurnEnded' );
+	});
+
+	// Return to (new turn) listener: info on what line’s next
+	socket.on( 'talkModeSetLine', function ( roomCode, lineReference ) {
+		socket.broadcast.to( roomCode ).emit( 'talkModeSetLine', lineReference );
+	});
+
+	// Listener changes response
+	socket.on( 'talkModeListenerResponse', function ( roomCode, responseType ) {
+		////socket.broadcast.to( roomCode ).emit( 'talkModeSetResponse', responseType );
+		// SEND TO ALL USERS IN ROOM..?
+	});
+
 
 	socket.on( 'connectCompanion', function ( roomCode ) {
 		if( contains.call( roomCodes, roomCode ) ) {
