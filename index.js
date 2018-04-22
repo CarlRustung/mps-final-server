@@ -28,27 +28,22 @@ io.on('connection', function ( socket ) {
 		socket.emit('requestCompanionCode');
 	});
 
-	/*
-	socket.on( 'talkModeEvent', function ( roomCode, lineReference, responseType ) {
-		socket.broadcast.to( roomCode ).emit( 'talkModeEvent', lineReference, responseType );
-		console.log( "Talk mode event in room #" + roomCode + ": id " + lineReference + ", rsp: " + emotion );
-	});
-	*/
-
 	// Reader is finished reading
 	socket.on( 'talkModeEndTurn', function ( roomCode ) {
+		console.log( "Reader reporting end of turn. Sending event to listener." )
 		socket.broadcast.to( roomCode ).emit( 'talkModeTurnEnded' );
 	});
 
 	// Return to (new turn) listener: info on what line’s next
 	socket.on( 'talkModeSetLine', function ( roomCode, lineReference ) {
+		console.log( "Listener reporting line reference #" + lineReference )
+		console.log( "Sending line reference to reader" )
 		socket.broadcast.to( roomCode ).emit( 'talkModeSetLine', lineReference );
 	});
 
 	// Listener changes response
 	socket.on( 'talkModeListenerResponse', function ( roomCode, responseType ) {
-		////socket.broadcast.to( roomCode ).emit( 'talkModeSetResponse', responseType );
-		// SEND TO ALL USERS IN ROOM..?
+		socket.broadcast.to( roomCode ).emit( 'talkModeSetResponse', responseType );
 	});
 
 
