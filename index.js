@@ -28,25 +28,6 @@ io.on('connection', function ( socket ) {
 		socket.emit('requestCompanionCode');
 	});
 
-	// Reader is finished reading
-	socket.on( 'talkModeEndTurn', function ( roomCode ) {
-		console.log( "Reader reporting end of turn. Sending event to listener." )
-		socket.broadcast.to( roomCode ).emit( 'talkModeTurnEnded' );
-	});
-
-	// Return to (new turn) listener: info on what line’s next
-	socket.on( 'talkModeSetLine', function ( roomCode, lineReference ) {
-		console.log( "Listener reporting line reference #" + lineReference )
-		console.log( "Sending line reference to reader" )
-		socket.broadcast.to( roomCode ).emit( 'talkModeSetLine', lineReference );
-	});
-
-	// Listener changes response
-	socket.on( 'talkModeListenerResponse', function ( roomCode, responseType ) {
-		socket.broadcast.to( roomCode ).emit( 'talkModeSetResponse', responseType );
-	});
-
-
 	socket.on( 'connectCompanion', function ( roomCode ) {
 		if( contains.call( roomCodes, roomCode ) ) {
 			socket.join( roomCode );
@@ -54,6 +35,24 @@ io.on('connection', function ( socket ) {
 		} else {
 			socket.emit( 'companionDenied' );
 		}
+	});
+
+	/////// TALK MODE
+
+	// Reader is finished reading
+	socket.on( 'talkModeEndReading', function ( roomCode ) {
+		console.log( "Reader reporting end of turn. Sending event to listener." )
+		socket.broadcast.to( roomCode ).emit( 'talkModeReadingHasEnded' );
+	});
+
+	// Return to (new turn) listener: info on what line’s next
+	socket.on( 'talkModeNextLineReference', function ( roomCode, lineReference ) {
+		socket.broadcast.to( roomCode ).emit( 'talkModeStartListening', lineReference );
+	});
+
+	// Listener changes response
+	socket.on( 'talkModeListenerResponse', function ( roomCode, responseType ) {
+		socket.broadcast.to( roomCode ).emit( 'talkModeSetResponse', responseType );
 	});
 });
 

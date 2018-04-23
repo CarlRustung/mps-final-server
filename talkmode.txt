@@ -1,0 +1,52 @@
+
+
+The reader reads a selected line.
+
+To get a line to read, you need the CURRENT line ID and the responseType.
+
+
+The listener selects the responseType. This also determines the NEXT line ID.
+
+On end of turn:
+
+the reader becomes the listener. The response buttons are loaded based on the LINE REFERENCE from the CURRENT TURN and the then selected RESPONSE.
+
+The listener gets to read the CURRENT LINE, based on the RESPONSE from the listener’s CURRENTLY SELECTED RESPONSE
+
+
+
+
+Reader|IPAD:					Listener|IPHONE:
+Line ID: 1 (current)			Line ID: 2 (next)
+Line Reference: 2				Line Reference: Depends on responseType (ex. positive)
+
+								click rspBtn -> set line reference
+
+New turn:
+Reader|IPAD needs to know NEXT line. Gets this from CURRENT LINE + Listener|IPHONE responseControl’s currentResponseType
+
+end reading, server exchange:					
+
+triggered by progress button
+send message to server
+			|						triggered by message from server
+wait for server response			return responseControl.currentResponseType -> lineRef
+			|						     |
+triggered by message from server 	     |					
+nextLine = lineRef 					currentLine = nextLine
+start listening ( nextLine )		start reading ( currentLine )
+									
+									
+
+
+
+Listener|IPAD:					Reader|IPHONE:
+Line ID: 3 (next)				Line ID: 2 (current)
+LineRef: select rsp (neg)		Line Reference: positive -> 3
+
+
+
+
+Reader|IPAD:					Listener|IPHONE:
+Line ID: 3 (current)			Line ID: 6 (next)
+lineRef: negative -> 6			Line reference: select rsp
