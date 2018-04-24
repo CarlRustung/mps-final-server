@@ -41,7 +41,6 @@ io.on('connection', function ( socket ) {
 
 	// Reader is finished reading
 	socket.on( 'talkModeEndReading', function ( roomCode ) {
-		console.log( "Reader reporting end of turn. Sending event to listener." )
 		socket.broadcast.to( roomCode ).emit( 'talkModeReadingHasEnded' );
 	});
 
