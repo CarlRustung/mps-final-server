@@ -53,6 +53,19 @@ io.on('connection', function ( socket ) {
 	socket.on( 'talkModeListenerResponse', function ( roomCode, responseType ) {
 		socket.broadcast.to( roomCode ).emit( 'talkModeSetResponse', responseType );
 	});
+
+
+	/////// READ MODE
+	// Listener makes a choice
+	socket.on( 'readModeChoice', function ( roomCode, choiceID ) {
+		console.log( "Forwarding read mode choice: " + choiceID )
+		io.sockets.in( roomCode ).emit( 'readModeSetChoice', choiceID );
+	});
+
+	// Reader turns page
+	socket.on( 'readModePageTurn', function ( roomCode ) {
+		io.sockets.in( roomCode ).emit( 'readModeTurnPage' );
+	});
 });
 
 
