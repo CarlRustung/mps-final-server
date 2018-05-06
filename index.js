@@ -54,12 +54,17 @@ io.on('connection', function ( socket ) {
 		socket.broadcast.to( roomCode ).emit( 'talkModeSetResponse', responseType );
 	});
 
+	//// SHARE FLAGS
+	socket.on( 'shareFlag', function ( roomCode, flagKey, flagValue ) {
+		console.log( "Forwarding flag: [" + flagKey + ", " + flagValue + "]" );
+		io.sockets.in( roomCode ).emit( 'shareFlag', flagKey, flagValue );
+	});
 
 	/////// READ MODE
 	// Listener makes a choice
-	socket.on( 'readModeChoice', function ( roomCode, choiceID ) {
-		console.log( "Forwarding read mode choice: " + choiceID )
-		io.sockets.in( roomCode ).emit( 'readModeSetChoice', choiceID );
+	socket.on( 'readModeSetPage', function ( roomCode, pageNo ) {
+		console.log( "Forwarding read mode choice: " + pageNo )
+		io.sockets.in( roomCode ).emit( 'readModeSetPage', pageNo );
 	});
 
 	// Reader turns page
